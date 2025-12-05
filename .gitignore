@@ -1,0 +1,44 @@
+# =============== #
+# Unity .gitignore #
+# =============== #
+
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Mm]emoryCaptures/
+Recordings/
+UserSettings/
+sysinfo.txt
+
+# Android / iOS / Gradle
+*.apk
+*.aab
+*.keystore
+*.jks
+.gradle/
+gradle.properties
+
+# Visual Studio
+*.csproj
+*.sln
+*.user
+.vs/
+
+# Unity Cache
+/[Uu]serSettings/
+PackageCache/
+*.cache
+
+# Auto-generated
+*.pidb
+*.booproj
+*.unityproj
+*.svd
+*.pdb
+*.mdb
+
+# Crash Reports
+*.stacktrace
