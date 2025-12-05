@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "812023967473",
+    "project_id": "fcar-9d923",
+    "storage_bucket": "fcar-9d923.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:812023967473:android:2ba7ec8b0b43534e6c4350",
+        "android_client_info": {
+          "package_name": "com.espe.fc_ar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWEKdCQbsi-dIR-L5VNHu-aUFr_84IlPo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
