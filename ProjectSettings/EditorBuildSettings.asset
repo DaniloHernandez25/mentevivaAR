@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: "Assets/Scenes/0 Main Men\xFA.unity"
+    guid: 221ad9390e584c14795c39b2a9fbc5cb
+  - enabled: 1
+    path: "Assets/Scenes/1 Orientaci\xF3n.unity"
+    guid: 3284b5d266e714f4f8f6a1a3b585d797
+  - enabled: 1
+    path: Assets/Scenes/2 Memoria.unity
+    guid: 6adeec811289a004e85135731c21a69e
+  - enabled: 1
+    path: "Assets/Scenes/3 C\xE1lculo.unity"
+    guid: 52b94c0ec037d154795d2419eb288f24
+  - enabled: 1
+    path: Assets/Scenes/4 Lenguaje.unity
+    guid: ac88854c488f8bc4e8f4e2a0425e27f2
+  - enabled: 1
+    path: Assets/Scenes/5 Rompecabezas.unity
+    guid: b869ecb222e7b6644962535bede546ec
+  - enabled: 1
+    path: Assets/Scenes/6 Espacial.unity
+    guid: 9a7ddfac01ffecd42bef480a8f8879f3
+  m_configObjects:
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  m_UseUCBPForAssetBundles: 0
