@@ -1,0 +1,2 @@
+C:\Users\Usuario\Documents\8Tesis\vuforiaprototipo\Library\Bee\Android\Prj\IL2CPP\Gradle\unityLibrary\src\main\cpp\CMakeLists.txt
+C:\Users\Usuario\Documents\8Tesis\vuforiaprototipo\Library\Bee\Android\Prj\IL2CPP\Gradle\unityLibrary\src\main\cpp\GameActivity\CMakeLists.txt

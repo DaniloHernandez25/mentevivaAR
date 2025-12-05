@@ -1,0 +1,1 @@
+C:\Users\Usuario\Documents\8Tesis\vuforiaprototipo\Library\Bee\Android\Prj\IL2CPP\Gradle\unityLibrary\build\intermediates\cxx\RelWithDebInfo\6e2iqz3y\obj\arm64-v8a
