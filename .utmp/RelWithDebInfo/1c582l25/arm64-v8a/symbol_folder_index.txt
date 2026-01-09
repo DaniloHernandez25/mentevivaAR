@@ -1,0 +1,1 @@
+C:\Users\Usuario\Documents\8Tesis\mentevivaAR\Library\Bee\Android\Prj\IL2CPP\Gradle\unityLibrary\build\intermediates\cxx\RelWithDebInfo\1c582l25\obj\arm64-v8a

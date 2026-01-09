@@ -34,7 +34,7 @@ public class minijuegosOrientacion : MonoBehaviour
     private AudioSource audioSource; // Fuente de audio
 
     // --- Estado interno esfera ---
-    private Vector2 initialPosition = new Vector2(0, 150);
+    private Vector2 initialPosition = new Vector2(0, -100);
     private Vector2 targetPosition;
     private int currentDirection; // 0=Arriba, 1=Abajo, 2=Izquierda, 3=Derecha
     private bool isMoving = false;

@@ -214,7 +214,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3962264, g: 0.38384432, b: 0, a: 1}
+  m_Color: {r: 0.6509434, g: 0.6316085, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1355,7 +1355,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3490566, g: 0.014818435, b: 0.2447554, a: 1}
+  m_Color: {r: 0.46226418, g: 0.019624414, b: 0.321661, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1749,6 +1749,7 @@ MonoBehaviour:
   canvas: {fileID: 1259581759}
   orientacion: {fileID: 0}
   memoria: {fileID: 235577241}
+  puzzle: {fileID: 0}
 --- !u!4 &1908748724
 Transform:
   m_ObjectHideFlags: 0

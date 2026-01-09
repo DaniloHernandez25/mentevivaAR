@@ -7,7 +7,7 @@ public class CanvasActivator : MonoBehaviour
 
     public minijuegosOrientacion orientacion; 
     public memoriaMinijuego memoria; 
-    public PuzzleManager puzzle; // 🔹 Nueva referencia al puzzle
+    public PuzzleManager puzzle;
 
     public void Show()
     {
@@ -21,15 +21,12 @@ public class CanvasActivator : MonoBehaviour
             memoria.StartGame();
 
         if (puzzle != null)
-            puzzle.enabled = true; // 🔹 Activa el componente PuzzleManager
+            puzzle.enabled = true;
     }
 
     public void Hide()
     {
         if (canvas != null)
             canvas.SetActive(false);
-
-        if (puzzle != null)
-            puzzle.enabled = false; // 🔹 Detiene el puzzle si quieres ocultarlo
     }
 }
