@@ -67,3 +67,8 @@ PackageCache/
 # Archivos pesados de Firebase o servicios
 google-services.json
 GoogleService-Info.plist
+# Archivos pesados de Firebase y Vuforia
+*.bundle
+*.so
+*.tgz
+/[Pp]ackages/*.tgz
