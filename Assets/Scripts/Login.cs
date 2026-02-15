@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using TMPro;
 using System.Collections;
+using Firebase.Auth;
 
 public class Login : MonoBehaviour
 {
@@ -11,8 +12,8 @@ public class Login : MonoBehaviour
 
     [SerializeField] private UIManager uiManager;
 
-    // 🔥 URL de tu Firebase Realtime Database
     private string firebaseURL = "https://fcar-9d923-default-rtdb.firebaseio.com";
+    private string authToken = ""; // <--- AGREGADO: Para guardar el token de seguridad
 
     private void Start()
     {
@@ -22,7 +23,10 @@ public class Login : MonoBehaviour
             mensajeGO.SetActive(false);
         }
 
-        // Si ya existe sesión guardada, entrar directo
+        // --- BLOQUE AGREGADO PARA SEGURIDAD ---
+        StartCoroutine(ObtenerToken()); 
+        // ---------------------------------------
+
         if (PlayerPrefs.HasKey("idUsuario"))
         {
             Debug.Log("Usuario ya logueado: " + PlayerPrefs.GetString("nombreUsuario"));
@@ -30,9 +34,37 @@ public class Login : MonoBehaviour
         }
     }
 
+    // --- CORRUTINA PARA AUTENTICACIÓN (Igual que en Registro) ---
+    IEnumerator ObtenerToken()
+    {
+        var auth = FirebaseAuth.DefaultInstance;
+        var task = auth.SignInAnonymouslyAsync();
+        yield return new WaitUntil(() => task.IsCompleted);
+
+        if (task.IsFaulted)
+        {
+            Debug.LogError("[Login] Error al autenticar: " + task.Exception);
+            MostrarMensaje("Error de seguridad al conectar");
+        }
+        else
+        {
+            var tokenTask = task.Result.User.TokenAsync(false); 
+            yield return new WaitUntil(() => tokenTask.IsCompleted);
+
+            if (tokenTask.IsFaulted)
+            {
+                Debug.LogError("[Login] Error al obtener token: " + tokenTask.Exception);
+            }
+            else
+            {
+                authToken = tokenTask.Result;
+                Debug.Log("[Login] Autenticación exitosa. Token obtenido.");
+            }
+        }
+    }
+
     public void OnClickLogin()
     {
-        // Limpiar mensaje previo
         if (mensajeGO != null)
             mensajeGO.SetActive(false);
 
@@ -43,29 +75,28 @@ public class Login : MonoBehaviour
     {
         string pin = pinInput.text.Trim();
 
-        // Validaciones
         if (string.IsNullOrEmpty(pin))
         {
             MostrarMensaje("Por favor ingresa tu PIN");
             yield break;
         }
 
-        if (pin.Length != 4)
+        // Verificamos si ya tenemos el token antes de continuar
+        if (string.IsNullOrEmpty(authToken))
         {
-            MostrarMensaje("El PIN debe tener 4 dígitos");
-            yield break;
-        }
-
-        if (!int.TryParse(pin, out _))
-        {
-            MostrarMensaje("El PIN debe contener solo números");
-            yield break;
+            MostrarMensaje("Conectando con el servidor...");
+            yield return StartCoroutine(ObtenerToken());
+            if (string.IsNullOrEmpty(authToken))
+            {
+                MostrarMensaje("Error de conexión segura");
+                yield break;
+            }
         }
 
         Debug.Log($"[Login] Buscando usuario con PIN: '{pin}'");
 
-        // 🔥 Obtener todos los usuarios de Firebase
-        string urlGet = $"{firebaseURL}/usuarios.json";
+        // 🔥 URL ACTUALIZADA: Se agrega ?auth={authToken}
+        string urlGet = $"{firebaseURL}/usuarios.json?auth={authToken}";
 
         using (UnityWebRequest www = UnityWebRequest.Get(urlGet))
         {
@@ -79,53 +110,44 @@ public class Login : MonoBehaviour
             }
 
             string respuesta = www.downloadHandler.text;
-            Debug.Log($"[Login] Respuesta recibida: {respuesta.Substring(0, Mathf.Min(200, respuesta.Length))}...");
 
-            // Si no hay usuarios o la respuesta es null
             if (string.IsNullOrEmpty(respuesta) || respuesta == "null")
             {
-                Debug.LogWarning("[Login] No hay usuarios registrados");
-                MostrarMensaje("PIN incorrecto");
+                MostrarMensaje("PIN incorrecto o no registrado");
                 yield break;
             }
 
-            // Buscar el PIN en la respuesta
+            // --- Lógica de búsqueda de PIN (Tu lógica original mejorada) ---
             bool loginExitoso = false;
-            int idUsuario = -1;
+            string idUsuarioString = "";
             string nombreUsuario = "";
             int edadUsuario = 0;
-            string discapacidadUsuario = "";
 
             try
             {
-                // Quitar llaves exteriores
                 respuesta = respuesta.Trim();
                 if (respuesta.StartsWith("{") && respuesta.EndsWith("}"))
                 {
                     respuesta = respuesta.Substring(1, respuesta.Length - 2);
                 }
 
-                // Dividir por usuarios (por cada "ID":{...})
                 string[] usuarios = respuesta.Split(new string[] { "}," }, System.StringSplitOptions.RemoveEmptyEntries);
 
                 foreach (string usuario in usuarios)
                 {
-                    // Extraer ID del usuario
-                    int startId = usuario.IndexOf("\"") + 1;
-                    int endId = usuario.IndexOf("\"", startId);
-                    string id = usuario.Substring(startId, endId - startId);
-
-                    // Extraer PIN
+                    // Extraer PIN para comparar
                     int startPin = usuario.IndexOf("\"pin\":\"") + 7;
-                    if (startPin < 7) continue; // No tiene campo pin
+                    if (startPin < 7) continue; 
                     int endPin = usuario.IndexOf("\"", startPin);
                     string pinDB = usuario.Substring(startPin, endPin - startPin);
 
-                    Debug.Log($"[Login] Verificando usuario ID {id}: pin='{pinDB}'");
-
-                    // Verificar PIN
                     if (pinDB == pin)
                     {
+                        // Extraer ID (el PIN se usa como ID según tu script de registro)
+                        int startId = usuario.IndexOf("\"") + 1;
+                        int endId = usuario.IndexOf("\"", startId);
+                        idUsuarioString = usuario.Substring(startId, endId - startId);
+
                         // Extraer nombre
                         int startNombre = usuario.IndexOf("\"nombre\":\"") + 10;
                         if (startNombre >= 10)
@@ -144,48 +166,33 @@ public class Login : MonoBehaviour
                             int.TryParse(edadStr, out edadUsuario);
                         }
 
-                        // Extraer discapacidad
-                        int startDisc = usuario.IndexOf("\"discapacidad\":\"") + 16;
-                        if (startDisc >= 16)
-                        {
-                            int endDisc = usuario.IndexOf("\"", startDisc);
-                            discapacidadUsuario = usuario.Substring(startDisc, endDisc - startDisc);
-                        }
-
                         loginExitoso = true;
-                        idUsuario = int.Parse(id);
                         break;
                     }
                 }
 
                 if (loginExitoso)
                 {
-                    // ✅ Guardar sesión en PlayerPrefs
-                    PlayerPrefs.SetInt("idUsuario", idUsuario);
+                    // Guardar sesión
+                    PlayerPrefs.SetString("idUsuario", idUsuarioString); // Guardamos como String por si el PIN tiene ceros a la izquierda
                     PlayerPrefs.SetString("nombreUsuario", nombreUsuario);
                     PlayerPrefs.SetInt("edadUsuario", edadUsuario);
-                    PlayerPrefs.SetString("discapacidadUsuario", discapacidadUsuario);
                     PlayerPrefs.SetString("pinUsuario", pin);
                     PlayerPrefs.Save();
 
-                    Debug.Log($"[Login] Login exitoso! Usuario ID: {idUsuario}, Nombre: {nombreUsuario}");
-                    mensajeGO?.SetActive(false);
-                    
-                    // Limpiar campo PIN
+                    Debug.Log($"[Login] ¡Éxito! Bienvenido {nombreUsuario}");
                     pinInput.text = "";
-                    
                     uiManager?.ShowMenu();
                 }
                 else
                 {
-                    Debug.LogWarning("[Login] PIN incorrecto");
                     MostrarMensaje("PIN incorrecto");
                 }
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"[Login] Error parseando respuesta: {e.Message}");
-                MostrarMensaje("Error procesando respuesta de Firebase");
+                Debug.LogError($"[Login] Error al procesar datos: {e.Message}");
+                MostrarMensaje("Error al procesar datos");
             }
         }
     }
@@ -197,30 +204,12 @@ public class Login : MonoBehaviour
             mensajeTexto.text = texto;
             mensajeGO.SetActive(true);
         }
-
-        Debug.Log("[Login] Mensaje: " + texto);
     }
 
     public void CerrarSesion()
     {
-        PlayerPrefs.DeleteKey("idUsuario");
-        PlayerPrefs.DeleteKey("nombreUsuario");
-        PlayerPrefs.DeleteKey("edadUsuario");
-        PlayerPrefs.DeleteKey("discapacidadUsuario");
-        PlayerPrefs.DeleteKey("pinUsuario");
+        PlayerPrefs.DeleteAll();
         PlayerPrefs.Save();
-
-        Debug.Log("Sesión cerrada");
         uiManager?.ShowMainMenu();
-    }
-
-    // 📦 Clases auxiliares
-    [System.Serializable]
-    public class UsuarioData
-    {
-        public string nombre;
-        public int edad;
-        public string discapacidad;
-        public string pin;
     }
 }

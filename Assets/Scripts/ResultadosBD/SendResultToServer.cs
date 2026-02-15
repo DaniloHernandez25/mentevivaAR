@@ -2,11 +2,13 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
 using System;
+using Firebase.Auth; // <--- AGREGADO
 
 public class SendResultToServer : MonoBehaviour
 {
     [Header("Configuración Firebase")]
     private string firebaseURL = "https://fcar-9d923-default-rtdb.firebaseio.com";
+    private string authToken = ""; 
 
     [Header("Parámetros")]
     public FaseJuego fase;
@@ -29,10 +31,48 @@ public class SendResultToServer : MonoBehaviour
         Espacial
     }
 
+    // --- BLOQUE AGREGADO PARA SEGURIDAD ---
+    void Start()
+    {
+        StartCoroutine(ObtenerToken());
+    }
+
+    IEnumerator ObtenerToken()
+    {
+        var auth = FirebaseAuth.DefaultInstance;
+        var task = auth.SignInAnonymouslyAsync();
+        yield return new WaitUntil(() => task.IsCompleted);
+
+        if (task.IsFaulted)
+        {
+            Debug.LogError("[SendResult] Error al autenticar: " + task.Exception);
+        }
+        else
+        {
+            var tokenTask = task.Result.User.TokenAsync(false); 
+            yield return new WaitUntil(() => tokenTask.IsCompleted);
+
+            if (!tokenTask.IsFaulted)
+            {
+                authToken = tokenTask.Result;
+                Debug.Log("[SendResult] Token obtenido correctamente.");
+            }
+        }
+    }
+    // ---------------------------------------
+
     public IEnumerator SendResult()
     {
-        int idUsuario = PlayerPrefs.GetInt("idUsuario", -1);
-        if (idUsuario == -1)
+        // 1. Asegurarse de tener token antes de enviar
+        if (string.IsNullOrEmpty(authToken))
+        {
+            yield return StartCoroutine(ObtenerToken());
+        }
+
+        // 2. IMPORTANTE: Cambiado a GetString para coincidir con tu Login.cs
+        string idUsuario = PlayerPrefs.GetString("idUsuario", ""); 
+        
+        if (string.IsNullOrEmpty(idUsuario))
         {
             Debug.LogError("[SendResultToServer] No se encontró 'idUsuario' en PlayerPrefs");
             yield break;
@@ -113,12 +153,9 @@ public class SendResultToServer : MonoBehaviour
                 break;
         }
 
-        Debug.Log($"[SendResultToServer] Enviando a Firebase: {rutaFirebase}");
-        Debug.Log($"[SendResultToServer] JSON: {json}");
+        // ✅ URL ACTUALIZADA: Se agrega ?auth={authToken}
+        string urlCompleta = $"{firebaseURL}/{rutaFirebase}.json?auth={authToken}";
 
-        string urlCompleta = $"{firebaseURL}/{rutaFirebase}.json";
-
-        // ✅ Crear request correctamente para Firebase
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
         
         using (UnityWebRequest www = new UnityWebRequest(urlCompleta, "POST"))
@@ -135,62 +172,17 @@ public class SendResultToServer : MonoBehaviour
             }
             else
             {
-                string respuesta = www.downloadHandler.text.Trim();
-                Debug.Log($"[SendResultToServer] ✅ Resultado guardado en Firebase: {respuesta}");
+                Debug.Log($"[SendResultToServer] ✅ Resultado guardado en Firebase: {www.downloadHandler.text}");
             }
         }
     }
 
     public void SetFase(FaseJuego nuevaFase) => fase = nuevaFase;
 
-    [Serializable]
-    public class OrientacionData
-    {
-        public string errores;
-        public int tiempoPromedioRespuesta;
-        public int tiempoUsado;
-        public string fecha;
-    }
-
-    [Serializable]
-    public class MemoriaData
-    {
-        public int errores;
-        public int tiempoUsado;
-        public string fecha;
-    }
-
-    [Serializable]
-    public class CalculoData
-    {
-        public int errores;
-        public int tiempoPromedioRespuesta;
-        public int tiempoUsado;
-        public string fecha;
-    }
-
-    [Serializable]
-    public class LenguajeData
-    {
-        public string palabrasPedidas;
-        public string oracionesDadas;
-        public int tiempoUsado;
-        public string fecha;
-    }
-
-    [Serializable]
-    public class RompecabezasData
-    {
-        public int porcentajeError;
-        public int tiempoUsado;
-        public string fecha;
-    }
-
-    [Serializable]
-    public class EspacialData
-    {
-        public int tiempoPromedioRespuesta;
-        public int tiempoUsado;
-        public string fecha;
-    }
+    [Serializable] public class OrientacionData { public string errores; public int tiempoPromedioRespuesta; public int tiempoUsado; public string fecha; }
+    [Serializable] public class MemoriaData { public int errores; public int tiempoUsado; public string fecha; }
+    [Serializable] public class CalculoData { public int errores; public int tiempoPromedioRespuesta; public int tiempoUsado; public string fecha; }
+    [Serializable] public class LenguajeData { public string palabrasPedidas; public string oracionesDadas; public int tiempoUsado; public string fecha; }
+    [Serializable] public class RompecabezasData { public int porcentajeError; public int tiempoUsado; public string fecha; }
+    [Serializable] public class EspacialData { public int tiempoPromedioRespuesta; public int tiempoUsado; public string fecha; }
 }

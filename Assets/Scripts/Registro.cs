@@ -3,6 +3,7 @@ using UnityEngine.Networking;
 using TMPro;
 using System.Collections;
 using System.Collections.Generic;
+using Firebase.Auth; 
 
 public class Registro : MonoBehaviour
 {
@@ -21,12 +22,46 @@ public class Registro : MonoBehaviour
     [SerializeField] private UnityEngine.UI.Button botonRegistrar;
 
     private string firebaseURL = "https://fcar-9d923-default-rtdb.firebaseio.com";
+    private string authToken = ""; // <--- AGREGADO para guardar el token
 
     void Start()
     {
+        StartCoroutine(ObtenerToken()); // <--- AGREGADO: Inicia la sesión al arrancar
         if (panelPIN != null)
             panelPIN.SetActive(false);
     }
+
+    // --- BLOQUE AGREGADO PARA SEGURIDAD ---
+    IEnumerator ObtenerToken()
+    {
+        var auth = FirebaseAuth.DefaultInstance;
+        var task = auth.SignInAnonymouslyAsync();
+        yield return new WaitUntil(() => task.IsCompleted);
+
+        if (task.IsFaulted)
+        {
+            Debug.LogError("[Registro] Error al autenticar: " + task.Exception);
+            MostrarMensaje("Error de seguridad al conectar");
+        }
+        else
+        {
+            // En Unity el método es TokenAsync, no IdTokenAsync
+            // task.Result.User nos da el usuario actual
+            var tokenTask = task.Result.User.TokenAsync(false); 
+            yield return new WaitUntil(() => tokenTask.IsCompleted);
+
+            if (tokenTask.IsFaulted)
+            {
+                Debug.LogError("[Registro] Error al obtener token: " + tokenTask.Exception);
+            }
+            else
+            {
+                authToken = tokenTask.Result;
+                Debug.Log("[Registro] Autenticación exitosa. Token obtenido.");
+            }
+        }
+    }
+    // ---------------------------------------
 
     public void OnClickRegistrar()
     {
@@ -69,7 +104,8 @@ public class Registro : MonoBehaviour
 
     IEnumerator VerificarYRegistrar(string nombre, int edad, string pin)
     {
-        string urlGet = $"{firebaseURL}/usuarios.json";
+        // Se agrega ?auth={authToken} a la URL
+        string urlGet = $"{firebaseURL}/usuarios.json?auth={authToken}";
 
         using (UnityWebRequest www = UnityWebRequest.Get(urlGet))
         {
@@ -120,7 +156,8 @@ public class Registro : MonoBehaviour
         };
 
         string json = JsonUtility.ToJson(nuevoUsuario);
-        string urlPut = $"{firebaseURL}/usuarios/{pin}.json";
+        // Se agrega ?auth={authToken} a la URL
+        string urlPut = $"{firebaseURL}/usuarios/{pin}.json?auth={authToken}";
 
         using (UnityWebRequest www = UnityWebRequest.Put(urlPut, json))
         {

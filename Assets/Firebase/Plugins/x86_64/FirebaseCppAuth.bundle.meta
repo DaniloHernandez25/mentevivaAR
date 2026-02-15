@@ -1,9 +1,9 @@
 fileFormatVersion: 2
-guid: 430ec2bf242343f39e77c9a57d726572
+guid: 5e37ea1972a64af9897f5fab651a5323
 labels:
 - gvh
 - gvh_version-13.4.0
-- gvhp_exportpath-Firebase/Plugins/Firebase.Database.pdb
+- gvhp_exportpath-Firebase/Plugins/x86_64/FirebaseCppAuth.bundle
 timeCreated: 1480838400
 PluginImporter:
   serializedVersion: 1
@@ -12,7 +12,7 @@ PluginImporter:
   isPreloaded: 0
   platformData:
     Android:
-      enabled: 1
+      enabled: 0
       settings:
         CPU: AnyCPU
     Any:
@@ -25,21 +25,21 @@ PluginImporter:
         DefaultValueInitialized: true
         OS: AnyOS
     Linux:
-      enabled: 1
+      enabled: 0
       settings:
-        CPU: x86
+        CPU: None
     Linux64:
-      enabled: 1
+      enabled: 0
       settings:
-        CPU: x86_64
+        CPU: None
     LinuxUniversal:
-      enabled: 1
+      enabled: 0
       settings:
-        CPU: AnyCPU
+        CPU: None
     OSXIntel:
-      enabled: 1
+      enabled: 0
       settings:
-        CPU: x86
+        CPU: None
     OSXIntel64:
       enabled: 1
       settings:
@@ -55,13 +55,13 @@ PluginImporter:
       enabled: 0
       settings: {}
     Win:
-      enabled: 1
+      enabled: 0
       settings:
-        CPU: x86
+        CPU: None
     Win64:
-      enabled: 1
+      enabled: 0
       settings:
-        CPU: x86_64
+        CPU: None
     WindowsStoreApps:
       enabled: 0
       settings:
