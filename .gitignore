@@ -42,3 +42,28 @@ PackageCache/
 
 # Crash Reports
 *.stacktrace
+
+# ========================================= #
+# Archivos de Gran Tamaño y Bases de Datos  #
+# ========================================= #
+# Ignorar archivos que exceden los 100MB de GitHub
+*.zip
+*.7z
+*.rar
+*.mp4
+*.mov
+*.psd
+*.fbx
+*.obj
+
+# Bases de datos locales y temporales
+*.sql
+*.sqlite
+*.db
+*.localdb
+/Assets/Plugins/Android/*.aar
+/Assets/Plugins/iOS/*.framework
+
+# Archivos pesados de Firebase o servicios
+google-services.json
+GoogleService-Info.plist
